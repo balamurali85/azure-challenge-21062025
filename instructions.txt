@@ -1,0 +1,83 @@
+
+Python code to create Azure resources via API ( VNET with mutiple subnets )
+
+Azure app to deploy python code
+Azure AD for authentication
+Azure table storage for storing results
+
+
+AZURE SETUP
+-------------------------------------------------
+az login
+
+az group create --name VNetAPI-RG --location eastus  # create a azure group
+
+az storage account create --name vnetapistorage21062025 --resource-group VNetAPI-RG --location eastus --sku Standard_LRS
+
+az storage table create --account-name vnetapistorage21062025 --name VNetResults # storage account and storage
+
+az storage account show-connection-string --name vnetapistorage21062025 --query connectionString --output tsv  # STORE THIS RESULTS
+
+
+
+
+FUNCTION CREATION using python - Azure SDK for python
+-------------------------------------------------
+
+npm install -g azure-functions-core-tools@4 --unsafe-perm true
+func init vnetapi --python
+cd vnetapi
+func new --name CreateVNet --template "HTTP trigger" --authlevel "function"
+
+
+pip install azure-mgmt-network azure-data-tables azure-identity
+pip freeze > requirements.txt
+
+
+
+func new --name CreateVNet --template "HTTP trigger" --authlevel "function"
+func new --name GetVNetResults --template "HTTP trigger" --authlevel "function"
+
+
+# Deplouy function app
+
+func azure functionapp publish VnetAzureAPI
+
+
+#Enable Azure AD auth
+
+Go to Azure Portal → Function App - register AAD
+
+#set theh environment variables
+az functionapp config appsettings set --name <YourFunctionAppName> --resource-group VNetAPI-RG --settings AZURE_SUBSCRIPTION_ID=<your-sub-id> AZURE_TABLE_CONN="<your-conn-string>"
+
+
+USING API
+----------------------------------------------------------
+az login
+az account get-access-token
+curl -X POST <API_ENDPOINT> -H "Authorization: Bearer <access_token>" -H "Content-Type: application/json" -d @payload.json
+
+
+
+https://VnetAzureAPI.azurewebsites.net/api/CreateVNet
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export RESOURCE_GROUP="VNetAPI-RG"
+export STORAGE_ACCOUNT="vnetapistorage21062025"
+export FUNCTION_APP="my-vnet-fnapp"
+export LOCATION="eastus"
+export RUNTIME="python"
+export PLAN="my-vnet-fnapp-plan"
