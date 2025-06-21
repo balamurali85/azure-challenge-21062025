@@ -1,0 +1,9 @@
+{
+  "resource_group": "VNetAPI-RG",
+  "location": "eastus",
+  "vnet_name": "myvnet",
+  "subnets": [
+    {"name": "subnet1", "prefix": "10.0.1.0/24"},
+    {"name": "subnet2", "prefix": "10.0.2.0/24"}
+  ]
+}
